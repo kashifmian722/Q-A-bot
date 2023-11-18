@@ -1,15 +1,15 @@
 import streamlit as st
-import cohere
+from cohere import Client  # Correct import statement
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-co = cohere.Client
+# Initialize Cohere client
+co = Client(os.getenv('COHERE_API_KEY'))
 
 @st.cache(persist=True)
 def co_chat(message, model, temperature, chat_history, prompt_truncation, stream, citation_quality, connectors, documents):
-    co = cohere.Client(os.getenv('COHERE_API_KEY'))
     response = co.chat(
         model=model,
         message=message,
@@ -25,7 +25,8 @@ def co_chat(message, model, temperature, chat_history, prompt_truncation, stream
 
 message = st.text_input("Enter your message:")
 
-response = co_chat(
+# Get the response as a list of messages
+response_messages = co_chat(
     message=message,
     model="command",
     temperature=0.3,
@@ -37,5 +38,6 @@ response = co_chat(
     documents=[],
 )
 
-# Using st.stream() to display the response as it is generated
-st.stream(response)
+# Stream each message
+for msg in response_messages:
+    st.write(msg)
