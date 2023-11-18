@@ -37,4 +37,5 @@ response = co_chat(
     documents=[],
 )
 
-st.markdown(response)
+# Using st.stream() to display the response as it is generated
+st.stream(response)
