@@ -40,4 +40,4 @@ response_messages = co_chat(
 
 # Stream each message
 for msg in response_messages:
-    st.write(msg)
+    st.markdown(msg["text"], unsafe_allow_html=False)  # Display chatbot response
