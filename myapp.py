@@ -1,5 +1,5 @@
 import streamlit as st
-from cohere import Client  # Correct import statement
+from cohere import Client
 from dotenv import load_dotenv
 import os
 
