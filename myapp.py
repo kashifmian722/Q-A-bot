@@ -8,16 +8,13 @@ load_dotenv()
 # Initialize Cohere client
 co = Client(os.getenv('COHERE_API_KEY'))
 
-@st.cache(persist=True)
-def co_chat(message, model, temperature, chat_history, prompt_truncation, stream, citation_quality, connectors, documents):
+def co_chat(message, model, temperature, chat_history, prompt_truncation, connectors, documents):
     response = co.chat(
-        model=model,
         message=message,
+        model=model,
         temperature=temperature,
         chat_history=chat_history,
         prompt_truncation=prompt_truncation,
-        stream=stream,
-        citation_quality=citation_quality,
         connectors=connectors,
         documents=documents,
     )
@@ -25,19 +22,36 @@ def co_chat(message, model, temperature, chat_history, prompt_truncation, stream
 
 message = st.text_input("Enter your message:")
 
-# Get the response as a list of messages
-response_messages = co_chat(
+# Define the chat history
+chat_history = [
+    {"user_name": "User", "text": message},
+]
+
+# Define the model settings
+model = "command"
+temperature = 0.9
+prompt_truncation = "auto"
+
+# Define the connectors and documents
+connectors = [{"id": "web-search", "options": {"site": "https://myvitaminstore.pk"}}]
+documents = []
+
+# Get the response
+response = co_chat(
     message=message,
-    model="command",
-    temperature=0.3,
-    chat_history=[],
-    prompt_truncation="auto",
-    stream=True,
-    citation_quality="accurate",
-    connectors=[{"id": "web-search", "options": {"site": "https://myvitaminstore.pk"}}],
-    documents=[],
+    model=model,
+    temperature=temperature,
+    chat_history=chat_history,
+    prompt_truncation=prompt_truncation,
+    connectors=connectors,
+    documents=documents,
 )
 
 # Stream each message
-for msg in response_messages:
-    st.markdown(msg["text"], unsafe_allow_html=False)  # Display chatbot response
+for msg in response.messages:
+    if msg.role == "system":
+        st.write(f"System: {msg.content}")
+    elif msg.role == "assistant":
+        st.write(f"Chatbot: {msg.content}")
+    else:
+        st.write(f"User: {msg.content}")
